@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EU AI Act - AI System Triage Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom styles for better visual appeal */
+        .question-card {
+            transition: all 0.3s ease-in-out;
+        }
+        .question-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .radio-label {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.25rem;
+            border-radius: 0.375rem;
+            border: 1px solid #e5e7eb; /* gray-200 */
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+        }
+        .radio-label:hover {
+            background-color: #f3f4f6; /* gray-100 */
+        }
+        input[type="radio"]:checked + .radio-label {
+            background-color: #3b82f6; /* blue-500 */
+            color: white;
+            border-color: #2563eb; /* blue-600 */
+        }
+        input[type="radio"] {
+            display: none; /* Hide the actual radio button */
+        }
+        .result-box {
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 2rem;
+        }
+        .likely-ai {
+            background-color: #d1fae5; /* green-100 */
+            border: 1px solid #6ee7b7; /* green-300 */
+            color: #065f46; /* green-800 */
+        }
+        .unlikely-ai {
+            background-color: #fee2e2; /* red-100 */
+            border: 1px solid #fca5a5; /* red-300 */
+            color: #991b1b; /* red-800 */
+        }
+        .more-info-needed {
+            background-color: #ffedd5; /* orange-100 */
+            border: 1px solid #fdba74; /* orange-300 */
+            color: #9a3412; /* orange-800 */
+        }
+        /* Ensure fonts are loaded */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 md:p-8">
+
+    <div class="bg-white shadow-xl rounded-lg p-6 sm:p-8 md:p-10 w-full max-w-2xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-2xl sm:text-3xl font-bold text-blue-600">EU AI Act: AI System Triage Tool</h1>
+            <p class="text-sm text-gray-600 mt-2">
+                This tool helps provide a preliminary indication of whether a system might be considered an "AI System" under the EU AI Act.
+                It is based on the definition in Article 3(1) of the Act.
+            </p>
+        </header>
+
+        <form id="aiTriageForm" class="space-y-6">
+            <!-- Question 1: Machine-based system -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">1. Is the system a machine-based system?</p>
+                <p class="text-sm text-gray-500 mb-3">This means it relies on physical hardware and software components to operate, rather than being a purely manual process or a set of rules on paper.</p>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q1_yes" name="machine_based" value="yes" class="form-radio">
+                    <label for="q1_yes" class="radio-label flex-1 text-center">Yes</label>
+                    <input type="radio" id="q1_no" name="machine_based" value="no" class="form-radio">
+                    <label for="q1_no" class="radio-label flex-1 text-center">No</label>
+                </div>
+            </div>
+
+            <!-- Question 2: Autonomy -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">2. Is the system designed to operate with varying levels of autonomy?</p>
+                <p class="text-sm text-gray-500 mb-3">This means it can perform tasks or make decisions with some degree of independence from direct, constant human control or intervention. Systems fully controlled by humans at all times are generally not considered autonomous in this context.</p>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q2_yes" name="autonomy" value="yes" class="form-radio">
+                    <label for="q2_yes" class="radio-label flex-1 text-center">Yes</label>
+                    <input type="radio" id="q2_no" name="autonomy" value="no" class="form-radio">
+                    <label for="q2_no" class="radio-label flex-1 text-center">No</label>
+                </div>
+            </div>
+
+            <!-- Question 3: Adaptiveness -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">3. May the system exhibit adaptiveness after deployment?</p>
+                <p class="text-sm text-gray-500 mb-3">This refers to self-learning capabilities that allow the system to change its behavior or improve its performance while in use, potentially producing different outcomes from the same inputs over time. This is a "may" condition and not strictly required for all AI systems.</p>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q3_yes" name="adaptiveness" value="yes" class="form-radio">
+                    <label for="q3_yes" class="radio-label flex-1 text-center">Yes</label>
+                    <input type="radio" id="q3_no" name="adaptiveness" value="no" class="form-radio">
+                    <label for="q3_no" class="radio-label flex-1 text-center">No</label>
+                </div>
+            </div>
+
+            <!-- Question 4: Objectives -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">4. Does the system operate for explicit or implicit objectives?</p>
+                <p class="text-sm text-gray-500 mb-1">This refers to the underlying purpose or aim the system is designed to achieve.</p>
+                <ul class="list-disc list-inside text-sm text-gray-500 mb-3 pl-4 space-y-1">
+                    <li><strong>Explicit objectives</strong> are specific goals directly defined and programmed by developers (e.g., "classify this image as a cat or a dog," "translate this text from English to French," "achieve a 95% accuracy in detecting manufacturing defects").</li>
+                    <li><strong>Implicit objectives</strong> might be less directly stated but are pursued by the system as a result of its design and learning processes (e.g., a recommendation system's implicit objective to "maximize user engagement" by learning what content keeps users on a platform, or a game AI's objective to "win the game" through learned strategies not explicitly programmed for every scenario).</li>
+                </ul>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q4_yes" name="objectives" value="yes" class="form-radio">
+                    <label for="q4_yes" class="radio-label flex-1 text-center">Yes</label>
+                    <input type="radio" id="q4_no" name="objectives" value="no" class="form-radio">
+                    <label for="q4_no" class="radio-label flex-1 text-center">No</label>
+                </div>
+            </div>
+
+            <!-- Question 5: Inference -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">5. Does the system infer, from the input it receives, how to generate outputs?</p>
+                <p class="text-sm text-gray-500 mb-3">
+                    "Inference" here means the system determines its outputs using techniques like machine learning (e.g., neural networks, decision trees, statistical modeling) or complex logic-based approaches (e.g., knowledge graphs, reasoning engines).
+                    This is distinct from systems that operate *solely* based on pre-defined, explicit rules (e.g., "if X, then Y" coded directly by humans without learning/adaptation), simple data processing, or basic mathematical calculations.
+                </p>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q5_yes" name="inference" value="yes" class="form-radio">
+                    <label for="q5_yes" class="radio-label flex-1 text-center">Yes, it uses inference techniques</label>
+                    <input type="radio" id="q5_no" name="inference" value="no" class="form-radio">
+                    <label for="q5_no" class="radio-label flex-1 text-center">No, it's primarily rule-based/deterministic</label>
+                </div>
+            </div>
+
+            <!-- Question 6: Output Types -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">6. Does the system generate outputs such as predictions, content, recommendations, or decisions?</p>
+                <p class="text-sm text-gray-500 mb-3">Consider if the primary function of the system is to produce these kinds of outputs that can then be acted upon or inform further actions.</p>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q6_yes" name="output_types" value="yes" class="form-radio">
+                    <label for="q6_yes" class="radio-label flex-1 text-center">Yes</label>
+                    <input type="radio" id="q6_no" name="output_types" value="no" class="form-radio">
+                    <label for="q6_no" class="radio-label flex-1 text-center">No</label>
+                </div>
+            </div>
+
+             <!-- Question 7: Influence on Environments -->
+            <div class="question-card bg-white p-5 rounded-lg border border-gray-200">
+                <p class="text-lg font-semibold mb-3">7. Can these outputs influence physical or virtual environments?</p>
+                <p class="text-sm text-gray-500 mb-3">This means the system's outputs (predictions, content, recommendations, or decisions) have the potential to cause effects or changes in the real world or in digital spaces.</p>
+                <div class="flex space-x-4">
+                    <input type="radio" id="q7_yes" name="influence" value="yes" class="form-radio">
+                    <label for="q7_yes" class="radio-label flex-1 text-center">Yes</label>
+                    <input type="radio" id="q7_no" name="influence" value="no" class="form-radio">
+                    <label for="q7_no" class="radio-label flex-1 text-center">No</label>
+                </div>
+            </div>
+        </form>
+
+        <div id="resultArea" class="mt-8">
+            <!-- Result will be displayed here -->
+        </div>
+
+        <footer class="mt-10 pt-6 border-t border-gray-200 text-center">
+            <p class="text-xs text-gray-500">
+                <strong>Disclaimer:</strong> This tool provides a preliminary, simplified assessment based on the EU AI Act's definition of an AI system.
+                It is not a substitute for legal advice. The classification of an AI system can be complex and depends on specific details and context.
+                Consult with a legal professional for definitive guidance on the EU AI Act.
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // Script to handle form changes and display results
+        const form = document.getElementById('aiTriageForm');
+        const resultArea = document.getElementById('resultArea');
+
+        // Function to get selected radio value
+        function getRadioValue(name) {
+            const radio = form.elements[name];
+            return radio ? radio.value : null;
+        }
+
+        // Add event listeners to all radio buttons to trigger evaluation
+        const radioButtons = form.querySelectorAll('input[type="radio"]');
+        radioButtons.forEach(radio => {
+            radio.addEventListener('change', evaluateAI);
+        });
+
+        function evaluateAI() {
+            // Gather answers
+            const answers = {
+                machine_based: getRadioValue('machine_based'),
+                autonomy: getRadioValue('autonomy'),
+                adaptiveness: getRadioValue('adaptiveness'), // 'May' condition
+                objectives: getRadioValue('objectives'),
+                inference: getRadioValue('inference'), // Crucial differentiator
+                output_types: getRadioValue('output_types'),
+                influence: getRadioValue('influence')
+            };
+
+            // Check if all questions are answered
+            const allAnswered = Object.values(answers).every(answer => answer !== null && answer !== '');
+            if (!allAnswered) {
+                resultArea.innerHTML = `
+                    <div class="result-box more-info-needed">
+                        <h3 class="text-xl font-semibold mb-2">Assessment Pending</h3>
+                        <p>Please answer all questions to get a preliminary assessment.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Core criteria for being an AI system under the EU AI Act
+            // Based on "‘AI system’ means a machine-based system (1)
+            // that is designed to operate with varying levels of autonomy (2)
+            // and that may exhibit adaptiveness after deployment (3 - optional but indicative),
+            // and that, for explicit or implicit objectives (4),
+            // infers (5 - CRITICAL), from the input it receives, how to generate outputs (6)
+            // such as predictions, content, recommendations, or decisions
+            // that can influence physical or virtual environments (7)."
+
+            let score = 0;
+            let isLikelyAI = true;
+            let reasons = [];
+
+            // Mandatory positive conditions
+            if (answers.machine_based === 'yes') score++; else { isLikelyAI = false; reasons.push("Not a machine-based system."); }
+            if (answers.autonomy === 'yes') score++; else { isLikelyAI = false; reasons.push("Does not operate with sufficient autonomy."); }
+            if (answers.objectives === 'yes') score++; else { isLikelyAI = false; reasons.push("Does not operate for explicit or implicit objectives."); }
+            if (answers.inference === 'yes') score++; else { isLikelyAI = false; reasons.push("Does not use inference; appears to be primarily rule-based or deterministic."); }
+            if (answers.output_types === 'yes') score++; else { isLikelyAI = false; reasons.push("Does not generate the specified types of outputs (predictions, content, recommendations, decisions)."); }
+            if (answers.influence === 'yes') score++; else { isLikelyAI = false; reasons.push("Outputs do not appear to influence physical or virtual environments."); }
+
+
+            // Adaptiveness is a "may" condition, strengthens the case but its absence doesn't disqualify if other core criteria met, especially inference.
+            let adaptivenessNote = "";
+            if (answers.adaptiveness === 'yes') {
+                score++; // bonus point
+                adaptivenessNote = "The system's potential adaptiveness further supports its classification as an AI system.";
+            } else {
+                adaptivenessNote = "While the system may not be adaptive, this alone does not exclude it if other core AI characteristics (especially inference) are present.";
+            }
+
+
+            // Final determination
+            let resultHTML = '';
+            if (isLikelyAI && answers.inference === 'yes') {
+                // All core criteria met, especially inference
+                resultHTML = `
+                    <div class="result-box likely-ai">
+                        <h3 class="text-xl font-semibold mb-2">Preliminary Indication: Likely an AI System</h3>
+                        <p class="mb-2">Based on your answers, the system exhibits key characteristics of an AI system as defined by the EU AI Act. This is particularly supported by its machine-based nature, autonomy, objectives, use of inference, and generation of influential outputs.</p>
+                        <p class="text-sm mb-2">${adaptivenessNote}</p>
+                        <p class="text-sm font-medium">Key supporting factors:</p>
+                        <ul class="list-disc list-inside text-sm">
+                            ${answers.machine_based === 'yes' ? '<li>Machine-based system</li>' : ''}
+                            ${answers.autonomy === 'yes' ? '<li>Operates with autonomy</li>' : ''}
+                            ${answers.objectives === 'yes' ? '<li>Has explicit/implicit objectives</li>' : ''}
+                            ${answers.inference === 'yes' ? '<li>Uses inference to generate outputs</li>' : ''}
+                            ${answers.output_types === 'yes' ? '<li>Generates relevant output types (predictions, content, recommendations, or decisions)</li>' : ''}
+                            ${answers.influence === 'yes' ? '<li>Outputs can influence environments</li>' : ''}
+                            ${answers.adaptiveness === 'yes' ? '<li>May exhibit adaptiveness</li>' : ''}
+                        </ul>
+                        <p class="mt-3 text-sm"><strong>Next Steps:</strong> Consider further analysis regarding its risk classification under the EU AI Act (e.g., high-risk, limited risk, minimal risk). Consult legal expertise.</p>
+                    </div>
+                `;
+            } else {
+                 // If inference is 'no', it's a strong indicator against being AI under the Act, regardless of other 'yes' answers.
+                let primaryReason = "The system does not appear to use 'inference' as described, which is a core characteristic of an AI system under the EU AI Act. Systems primarily based on explicit, pre-defined rules without learning or complex reasoning may not qualify.";
+                if (answers.inference === 'yes' && !isLikelyAI) { // Inference is yes, but other mandatory criteria failed
+                    primaryReason = "While the system might use inference, it appears to be missing other core characteristics of an AI system under the EU AI Act (e.g., not machine-based, lacking autonomy, or not producing relevant outputs that influence environments).";
+                } else if (answers.inference !== 'yes') { // Explicitly no inference
+                     primaryReason = "The system does not appear to use 'inference' as described, which is a core characteristic of an AI system under the EU AI Act. Systems primarily based on explicit, pre-defined rules without learning or complex reasoning may not qualify.";
+                }
+
+
+                resultHTML = `
+                    <div class="result-box unlikely-ai">
+                        <h3 class="text-xl font-semibold mb-2">Preliminary Indication: Likely NOT an AI System (or more information needed)</h3>
+                        <p class="mb-2">${primaryReason}</p>
+                        <p class="text-sm mb-2">${adaptivenessNote}</p>
+                        <p class="text-sm font-medium">Reasons for this preliminary assessment (based on 'No' answers to core criteria):</p>
+                        <ul class="list-disc list-inside text-sm">
+                            ${reasons.map(reason => `<li>${reason}</li>`).join('')}
+                        </ul>
+                        <p class="mt-3 text-sm"><strong>Note:</strong> If the system is complex, the distinction between advanced rule-based systems and inference-based AI can be nuanced. If in doubt, further expert assessment is recommended.</p>
+                    </div>
+                `;
+            }
+            resultArea.innerHTML = resultHTML;
+        }
+
+        // Initial call to set the "Please answer all questions" message
+        evaluateAI();
+    </script>
+
+</body>
+</html>
